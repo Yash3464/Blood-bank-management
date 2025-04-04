@@ -1,0 +1,97 @@
+/* Custom styles for Blood Management System */
+
+/* Body styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Navbar styles */
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+/* Footer styles */
+footer {
+    margin-top: auto;
+}
+
+/* Card styles */
+.card {
+    transition: transform 0.2s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+/* Blood type badges */
+.blood-type {
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Form styles */
+.form-control:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Button styles */
+.btn-blood {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+.btn-blood:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+    color: white;
+}
+
+/* Stats counter */
+.stats-counter {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #dc3545;
+}
+
+/* Alert styles */
+.alert {
+    border-radius: 0;
+    border: none;
+    margin-bottom: 1rem;
+}
+
+/* Profile section */
+.profile-header {
+    background-color: #f8f9fa;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+}
+
+/* Donation history table */
+.donation-history th {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+    
+    .stats-counter {
+        font-size: 2rem;
+    }
+} 

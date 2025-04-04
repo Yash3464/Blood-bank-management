@@ -1,0 +1,52 @@
+{% extends 'blood_bank/base.html' %}
+
+{% block title %}Home - Blood Bank Management System{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 text-danger mb-3">Blood Bank Management System</h1>
+        <p class="lead">A platform to help connect blood donors with those in need</p>
+    </div>
+
+    <div class="row justify-content-center g-4">
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <h3 class="card-title text-danger mb-3">Request Blood</h3>
+                    <p class="card-text mb-4">Need blood? Submit a request and we'll help you find donors.</p>
+                    <a href="{% url 'blood_request_create' %}" class="btn btn-danger btn-lg">Request Now</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <h3 class="card-title text-danger mb-3">Become a Donor</h3>
+                    <p class="card-text mb-4">Register as a blood donor and help save lives.</p>
+                    <a href="{% url 'register' %}" class="btn btn-danger btn-lg">Register Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: none;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    }
+    .btn-danger {
+        padding: .75rem 2rem;
+        transition: all 0.3s;
+    }
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 .25rem .5rem rgba(220,53,69,.3)!important;
+    }
+</style>
+{% endblock %}
