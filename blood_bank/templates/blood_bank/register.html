@@ -1,61 +1,31 @@
-{% extends 'blood_bank/base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}Register - Blood Management System{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-body">
-                <h2 class="card-title text-center mb-4">Create an Account</h2>
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name</label>
-                                {{ form.first_name.errors }}
-                                {{ form.first_name }}
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name</label>
-                                {{ form.last_name.errors }}
-                                {{ form.last_name }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
-                        {{ form.username.errors }}
-                        {{ form.username }}
-                    </div>
-                    <div class="mb-3">
-                        <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
-                        {{ form.email.errors }}
-                        {{ form.email }}
-                    </div>
-                    <div class="mb-3">
-                        <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
-                        {{ form.password1.errors }}
-                        {{ form.password1 }}
-                        <div class="form-text">{{ form.password1.help_text }}</div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password</label>
-                        {{ form.password2.errors }}
-                        {{ form.password2 }}
-                    </div>
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-blood">Register</button>
-                    </div>
-                </form>
-                <div class="text-center mt-3">
-                    <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
-                </div>
-            </div>
+<div class="container">
+    <h2 class="text-center mb-4">Create an Account</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label">Username</label>
+            {{ form.username }}
         </div>
-    </div>
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            {{ form.email }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Password</label>
+            {{ form.password }}
+        </div>
+
+        <button type="submit" class="btn btn-success w-100">Register</button>
+    </form>
+
+    <p class="mt-3 text-center">
+        Already have an account? <a href="{% url 'login' %}">Login</a>
+    </p>
 </div>
-{% endblock %} 
+{% endblock %}

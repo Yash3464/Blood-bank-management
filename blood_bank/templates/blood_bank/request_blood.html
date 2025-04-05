@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Request Blood - Blood Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="text-center mb-4">Request Blood</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label class="form-label">Full Name</label>
+            {{ form.requester_name }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Blood Group</label>
+            {{ form.blood_group }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Units Required</label>
+            {{ form.units_required }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Hospital Name</label>
+            {{ form.hospital_name }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Hospital Address</label>
+            {{ form.hospital_address }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Contact Number</label>
+            {{ form.contact_number }}
+        </div>
+
+        <button type="submit" class="btn btn-danger w-100">Submit Request</button>
+    </form>
+</div>
+{% endblock %}

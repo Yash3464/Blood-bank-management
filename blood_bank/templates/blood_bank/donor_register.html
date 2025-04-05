@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Donor Registration - Blood Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="text-center mb-4">Register as a Blood Donor</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label class="form-label">Blood Group</label>
+            {{ form.blood_group }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Date of Birth</label>
+            {{ form.date_of_birth }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Last Donation Date</label>
+            {{ form.last_donation_date }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Phone Number</label>
+            {{ form.phone_number }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Address</label>
+            {{ form.address }}
+        </div>
+
+        <button type="submit" class="btn btn-success w-100">Register as Donor</button>
+    </form>
+</div>
+{% endblock %}
