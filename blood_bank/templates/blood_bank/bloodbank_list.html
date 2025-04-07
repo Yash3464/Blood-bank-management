@@ -1,0 +1,35 @@
+{% extends 'blood_bank/base.html' %}
+
+{% block title %}Blood Banks{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="text-center mb-4">Blood Banks</h2>
+    
+    <div class="row">
+        {% for bank in object_list %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ bank.name }}</h5>
+                        <p class="card-text">
+                            <strong>Address:</strong> {{ bank.address }}<br>
+                            <strong>Contact:</strong> {{ bank.contact_number }}<br>
+                            <strong>Email:</strong> {{ bank.email }}
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">Operating Hours: {{ bank.operating_hours }}</small>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    No blood banks available at the moment.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

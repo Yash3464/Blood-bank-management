@@ -1,0 +1,65 @@
+{% extends 'blood_bank/base.html' %}
+
+{% block title %}Registered Donors - Blood Management System{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="text-center">Registered Blood Donors</h2>
+            <p class="text-center text-muted">Total Registered Donors: {{ total_donors }}</p>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for donor in donors %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ donor.name }}</h5>
+                        <div class="blood-type-badge mb-3">
+                            <span class="badge bg-danger">{{ donor.blood_type }}</span>
+                        </div>
+                        <ul class="list-unstyled">
+                            <li><strong>Age:</strong> {{ donor.age }} years</li>
+                            <li><strong>Registered:</strong> {{ donor.created_at|date:"F j, Y" }}</li>
+                            <li><strong>Last Updated:</strong> {{ donor.updated_at|date:"F j, Y" }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <p class="mb-0">No donors registered yet.</p>
+                    <a href="{% url 'register' %}" class="btn btn-primary mt-3">Register as Donor</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if donors %}
+        <div class="text-center mt-4">
+            <a href="{% url 'register' %}" class="btn btn-primary">Register as Donor</a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .blood-type-badge {
+        display: inline-block;
+    }
+    .blood-type-badge .badge {
+        font-size: 1rem;
+        padding: 0.5rem 1rem;
+    }
+    .card {
+        transition: transform 0.2s;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+</style>
+{% endblock %} 

@@ -1,0 +1,120 @@
+{% extends 'blood_bank/base.html' %}
+
+{% block title %}Request Blood{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="bg-danger text-white p-4 mb-4 rounded">
+        <h2 class="text-center m-0">Request Blood</h2>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="mb-4">
+                        <label class="form-label text-muted">{{ field.label }}</label>
+                        {{ field.errors }}
+                        {{ field }}
+                    </div>
+                {% endfor %}
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-danger btn-lg px-5">Submit Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Reset all form elements */
+    input, select, textarea {
+        all: unset;
+        display: block;
+        box-sizing: border-box;
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        background-color: #fff;
+    }
+
+    /* Remove all browser-specific styling */
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="number"],
+    select,
+    textarea {
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+        background-image: none !important;
+        background-color: #fff !important;
+    }
+
+    /* Remove number spinners */
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none !important;
+        margin: 0;
+    }
+
+    input[type="number"] {
+        -moz-appearance: textfield !important;
+    }
+
+    /* Remove autofill styling */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 30px white inset !important;
+        -webkit-text-fill-color: inherit !important;
+        transition: background-color 5000s ease-in-out 0s;
+    }
+
+    /* Focus styles */
+    input:focus, select:focus, textarea:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+    }
+
+    /* Label styles */
+    .form-label {
+        font-size: 16px;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    /* Error message styles */
+    .errorlist {
+        color: #dc3545;
+        list-style: none;
+        padding: 0;
+        margin: 5px 0;
+        font-size: 14px;
+    }
+
+    /* Custom select dropdown arrow */
+    select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 0.75rem center !important;
+        background-size: 16px 12px !important;
+        padding-right: 2.5rem !important;
+    }
+
+    /* Remove contact icon */
+    input[type="text"]::-webkit-contacts-auto-fill-button,
+    input[type="email"]::-webkit-contacts-auto-fill-button {
+        visibility: hidden;
+        display: none !important;
+        pointer-events: none;
+        position: absolute;
+        right: 0;
+    }
+</style>
+{% endblock %} 

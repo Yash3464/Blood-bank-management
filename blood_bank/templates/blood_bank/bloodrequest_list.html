@@ -1,0 +1,61 @@
+{% extends 'blood_bank/base.html' %}
+
+{% block title %}Blood Requests{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="bg-danger text-white p-4 mb-4 rounded">
+        <h2 class="text-center m-0">Blood Requests</h2>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            {% if requests %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Requester Name</th>
+                                <th>Blood Group</th>
+                                <th>Units Required</th>
+                                <th>Hospital Name</th>
+                                <th>Contact Number</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for request in requests %}
+                                <tr>
+                                    <td>{{ request.requester_name }}</td>
+                                    <td>{{ request.blood_group }}</td>
+                                    <td>{{ request.units_required }}</td>
+                                    <td>{{ request.hospital_name }}</td>
+                                    <td>{{ request.contact_number }}</td>
+                                    <td>
+                                        {% if request.status == 'pending' %}
+                                            <span class="badge bg-warning">Pending</span>
+                                        {% elif request.status == 'approved' %}
+                                            <span class="badge bg-success">Approved</span>
+                                        {% elif request.status == 'rejected' %}
+                                            <span class="badge bg-danger">Rejected</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ request.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ request.request_date|date:"M d, Y" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center">
+                    <p class="lead mb-4">No blood requests found.</p>
+                    <a href="{% url 'blood_request_create' %}" class="btn btn-danger">Make a Request</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 
