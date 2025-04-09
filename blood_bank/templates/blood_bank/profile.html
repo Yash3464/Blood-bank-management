@@ -14,14 +14,14 @@
                     <div class="col-md-6">
                         <p><strong>Name:</strong> {{ donor.user.get_full_name }}</p>
                         <p><strong>Blood Group:</strong> {{ donor.blood_group }}</p>
-                        <p><strong>Date of Birth:</strong> {{ donor.date_of_birth }}</p>
+                        <p><strong>Date of Birth:</strong> {{ donor.date_of_birth|date:"F j, Y" }}</p>
                     </div>
                     <div class="col-md-6">
                         <p><strong>Phone:</strong> {{ donor.phone_number }}</p>
                         <p><strong>Address:</strong> {{ donor.address }}</p>
                         <p><strong>Last Donation:</strong> 
                             {% if donor.last_donation_date %}
-                                {{ donor.last_donation_date }}
+                                {{ donor.last_donation_date|date:"F j, Y" }}
                             {% else %}
                                 No donations yet
                             {% endif %}
@@ -35,7 +35,7 @@
             </div>
         </div>
     {% else %}
-        <div class="alert alert-info">
+        <div class="alert alert-info mt-4">
             <p>You are not registered as a donor yet.</p>
             <a href="{% url 'register' %}" class="btn btn-primary">Register as Donor</a>
         </div>

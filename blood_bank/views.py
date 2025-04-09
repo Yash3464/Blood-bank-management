@@ -2,124 +2,73 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
-from django.contrib.auth.forms import UserCreationForm
 from django.views.generic import (
-    ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
+    ListView, CreateView, UpdateView, TemplateView
 )
 from django.urls import reverse_lazy
+
 from .models import BloodBank, Donor, BloodRequest, Donation, BloodInventory
 from .forms import (
     DonorRegistrationForm, DonorProfileForm, BloodRequestForm,
     DonationForm, BloodBankForm, UserRegistrationForm
 )
-from .exceptions import *
+from .exceptions import DonationError
+
 
 class HomeView(TemplateView):
-    """Home page view"""
     template_name = 'blood_bank/home.html'
 
-# User Registration
-def register(request):
-    if request.method == 'POST':
-        form = UserRegistrationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('home')
-    else:
-        form = UserRegistrationForm()
-    return render(request, 'blood_bank/register.html', {'form': form})
 
-# User Login
+# Authentication
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
-        
+
         if user is not None:
             login(request, user)
             messages.success(request, 'Successfully logged in!')
             return redirect('home')
         else:
             messages.error(request, 'Invalid username or password.')
-    
     return render(request, 'blood_bank/login.html')
 
-# User Logout
-def user_logout(request):
-    logout(request)
-    return redirect('home')
 
-# Donor Registration
+def register_view(request):
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, 'Account created successfully! Please login.')
+            return redirect('login')
+        else:
+            for errors in form.errors.values():
+                for error in errors:
+                    messages.error(request, error)
+    else:
+        form = UserRegistrationForm()
+    return render(request, 'blood_bank/register.html', {'form': form})
+
+
+# Donor Views
 @login_required
-def register_donor(request):
+def donor_register(request):
     if request.method == 'POST':
         form = DonorRegistrationForm(request.POST)
         if form.is_valid():
             donor = form.save(commit=False)
             donor.user = request.user
             donor.save()
-            return redirect('profile')
-    else:
-        form = DonorRegistrationForm()
-    return render(request, 'blood_bank/donor_register.html', {'form': form})
-
-# Blood Request
-@login_required
-def request_blood(request):
-    if request.method == 'POST':
-        form = BloodRequestForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('home')
-    else:
-        form = BloodRequestForm()
-    return render(request, 'blood_bank/request_blood.html', {'form': form})
-
-# Blood Bank List
-def blood_banks(request):
-    banks = BloodBank.objects.all()
-    return render(request, 'blood_bank/blood_banks.html', {'banks': banks})
-
-# User Profile
-@login_required
-def profile(request):
-    donor = Donor.objects.filter(user=request.user).first()
-    return render(request, 'blood_bank/profile.html', {'donor': donor})
-
-def donor_register(request):
-    if request.method == 'POST':
-        form = DonorRegistrationForm(request.POST)
-        if form.is_valid():
-            # Create a new donor
-            Donor.objects.create(
-                name=form.cleaned_data['name'],
-                email=form.cleaned_data['email'],
-                age=form.cleaned_data['age'],
-                blood_type=form.cleaned_data['blood_type']
-            )
             messages.success(request, 'Thank you for registering as a donor!')
-            return redirect('home')
+            return redirect('donor_profile')
     else:
         form = DonorRegistrationForm()
-    
     return render(request, 'blood_bank/donor_registration.html', {'form': form})
 
-class DonorRegistrationView(CreateView):
-    model = Donor
-    form_class = DonorRegistrationForm
-    template_name = 'blood_bank/donor_registration.html'
-    success_url = reverse_lazy('home')
-
-    def form_valid(self, form):
-        messages.success(self.request, 'Thank you for registering as a donor!')
-        return super().form_valid(form)
 
 class DonorProfileView(LoginRequiredMixin, UpdateView):
-    """View for updating donor profile"""
     model = Donor
     form_class = DonorProfileForm
     template_name = 'blood_bank/donor_profile.html'
@@ -128,48 +77,68 @@ class DonorProfileView(LoginRequiredMixin, UpdateView):
     def get_object(self):
         return get_object_or_404(Donor, user=self.request.user)
 
-class BloodRequestCreateView(SuccessMessageMixin, CreateView):
-    """View for creating blood requests"""
+
+class DonorListView(ListView):
+    model = Donor
+    template_name = 'blood_bank/donor_list.html'
+    context_object_name = 'donors'
+    ordering = ['-created_at']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['total_donors'] = Donor.objects.count()
+        return context
+
+
+# Blood Request
+class BloodRequestCreateView(CreateView):
     model = BloodRequest
     form_class = BloodRequestForm
     template_name = 'blood_bank/blood_request_form.html'
     success_url = reverse_lazy('blood_request_list')
-    success_message = "Blood request submitted successfully!"
 
     def form_valid(self, form):
         try:
-            # Find suitable blood banks
             blood_group = form.cleaned_data['blood_group']
             units_required = form.cleaned_data['units_required']
-            
-            available_banks = BloodInventory.get_available_blood_banks(
-                blood_group, units_required
-            )
 
+            available_banks = BloodInventory.get_available_blood_banks(blood_group, units_required)
             if not available_banks.exists():
                 messages.warning(
                     self.request,
-                    f"No blood banks currently have {units_required} units of {blood_group} available."
+                    f"No blood banks currently have {units_required} units of {blood_group}."
                 )
-                # Save the request anyway with pending status
                 form.instance.status = 'pending'
                 return super().form_valid(form)
 
-            # Assign to the first available blood bank
             form.instance.blood_bank = available_banks.first().blood_bank
+            messages.success(self.request, "Blood request submitted successfully!")
             return super().form_valid(form)
 
+        except ValueError as e:
+            messages.error(self.request, f"Inventory value error: {str(e)}")
+        except TypeError as e:
+            messages.error(self.request, f"Inventory type error: {str(e)}")
         except Exception as e:
-            messages.error(self.request, str(e))
-            return self.form_invalid(form)
+            messages.error(self.request, f"Error loading inventory: {str(e)}")
 
-class DonationCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
-    """View for creating donations"""
+
+
+class BloodRequestListView(ListView):
+    model = BloodRequest
+    template_name = 'blood_bank/bloodrequest_list.html'
+    context_object_name = 'requests'
+
+    def get_queryset(self):
+        return BloodRequest.objects.all().order_by('-request_date')
+
+
+# Donations
+class DonationCreateView(LoginRequiredMixin, CreateView):
     model = Donation
     form_class = DonationForm
     template_name = 'blood_bank/donation_form.html'
     success_url = reverse_lazy('donation_list')
-    success_message = "Thank you for your donation!"
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -180,6 +149,7 @@ class DonationCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         try:
             form.instance.donor = self.request.user.donor
             form.instance.blood_group = self.request.user.donor.blood_group
+            messages.success(self.request, "Thank you for your donation!")
             return super().form_valid(form)
         except DonationError as e:
             messages.error(self.request, str(e))
@@ -188,8 +158,22 @@ class DonationCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
             messages.error(self.request, f"An error occurred: {str(e)}")
             return self.form_invalid(form)
 
+
+class DonationListView(LoginRequiredMixin, ListView):
+    model = Donation
+    template_name = 'blood_bank/donation_list.html'
+    context_object_name = 'donations'
+
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return Donation.objects.all().order_by('-donation_date')
+        return Donation.objects.filter(
+            donor=self.request.user.donor
+        ).order_by('-donation_date')
+
+
+# Blood Bank
 class BloodBankListView(ListView):
-    """View for listing blood banks"""
     model = BloodBank
     template_name = 'blood_bank/bloodbank_list.html'
     context_object_name = 'blood_banks'
@@ -202,74 +186,3 @@ class BloodBankListView(ListView):
         except Exception as e:
             messages.error(self.request, f"Error loading inventory: {str(e)}")
         return context
-
-class BloodRequestListView(ListView):
-    """View for listing blood requests"""
-    model = BloodRequest
-    template_name = 'blood_bank/bloodrequest_list.html'
-    context_object_name = 'requests'
-
-    def get_queryset(self):
-        """Get all blood requests ordered by most recent first"""
-        return BloodRequest.objects.all().order_by('-request_date')
-
-class DonationListView(LoginRequiredMixin, ListView):
-    """View for listing donations"""
-    model = Donation
-    template_name = 'blood_bank/donation_list.html'
-    context_object_name = 'donations'
-
-    def get_queryset(self):
-        if self.request.user.is_staff:
-            return Donation.objects.all().order_by('-donation_date')
-        return Donation.objects.filter(
-            donor=self.request.user.donor
-        ).order_by('-donation_date')
-
-def home(request):
-    return render(request, 'blood_bank/home.html')
-
-# Donor List View
-class DonorListView(ListView):
-    """View for listing all registered donors"""
-    model = Donor
-    template_name = 'blood_bank/donor_list.html'
-    context_object_name = 'donors'
-    ordering = ['-created_at']
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['total_donors'] = Donor.objects.count()
-        return context
-
-class RegisterView(CreateView):
-    template_name = 'blood_bank/register.html'
-    form_class = UserCreationForm
-    success_url = reverse_lazy('login')
-    
-    def form_valid(self, form):
-        user = form.save()
-        messages.success(self.request, 'Account created successfully! Please login.')
-        return redirect(self.success_url)
-    
-    def form_invalid(self, form):
-        for field, errors in form.errors.items():
-            for error in errors:
-                messages.error(self.request, f'{error}')
-        return super().form_invalid(form)
-
-def register_view(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            messages.success(request, 'Account created successfully! Please login.')
-            return redirect('login')
-        else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f'{error}')
-    else:
-        form = UserCreationForm()
-    
-    return render(request, 'blood_bank/register.html', {'form': form})
